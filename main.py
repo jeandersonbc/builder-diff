@@ -30,6 +30,10 @@ def collect_file_names(data):
     return file_names
 
 
+def index_by_name(data):
+    return {item[0]: item[1] for item in data}
+
+
 def compare_output(expected_output, output):
     expected_files = collect_file_names(expected_output)
     output_files = collect_file_names(output)
@@ -45,7 +49,20 @@ def compare_output(expected_output, output):
     print("Not expected files:", len(output_only))
     [print(" -", e) for e in sorted(list(output_only))]
 
-    # TODO Checking hashsum from common files
+    print("Checking hashsum from common files")
+    expected_hashes = index_by_name(expected_output)
+    output_hashes = index_by_name(output)
+    hash_mismatches = []
+    for common_file in common:
+        expected_hash = expected_hashes[common_file]
+        output_hash = output_hashes[common_file]
+        if not (expected_hash == output_hash):
+            hash_mismatches.append(common_file)
+    print("Hashes mismatch:", len(hash_mismatches))
+    if hash_mismatches:
+        for badhash in hash_mismatches[:5]:
+            print(" -", badhash)
+        print(" - ...top results...(omitted remaining)")
 
 
 def run(commands):
