@@ -1,25 +1,7 @@
 import os
 import hashlib
+from time import time
 from subprocess import check_output, PIPE
-
-
-class CompiledData:
-    def __init__(self, root, name, hashsum):
-        self.root = root
-        self.name = name
-        self.hashsum = hashsum
-
-    def __eq__(self, other):
-        try:
-            return self.name == other.name and self.hashsum == other.hashsum
-        except:
-            return False
-
-    def __hash__(self):
-        return hash(self.name) + hash(self.hashsum)
-
-    def __str__(self):
-        return "(root:{}, name: {}, hash: {})".format(self.root, self.name, self.hashsum)
 
 
 def compute_hash(input_file):
@@ -33,33 +15,54 @@ def compute_hash(input_file):
 
 
 def analyze_files(input_path):
-    analyzed_data = set({})
+    analyzed_data = []
     for root, dirs, files in os.walk(input_path):
         for file_name in files:
             file_path = os.path.join(root, file_name)
             hashsum = compute_hash(file_path)
-            analyzed_data.add(CompiledData(root, file_name, hashsum))
+            analyzed_data.append((file_path, hashsum))
     return analyzed_data
 
 
+def collect_file_names(data):
+    file_names = {e[0] for e in data}
+    assert len(file_names) == len(data), "There are files with same name"
+    return file_names
+
+
 def compare_output(expected_output, output):
-    print("Expected output: {} files".format(len(expected_output)))
-    print("Output: {} files".format(len(output)))
+    expected_files = collect_file_names(expected_output)
+    output_files = collect_file_names(output)
 
-    intersection = expected_output.intersection(output)
-    print("Hash matching: {} files".format(len(intersection)))
+    common = expected_files.intersection(output_files)
+    missing = expected_files.difference(output_files)
+    output_only = output_files.difference(expected_files)
 
-    print("Expected file(s) not present:")
-    [print(e) for e in expected_output.difference(output)]
+    print("Total files:", len(expected_files))
+    print("Common files:", len(common))
+    print("Missing files:", len(missing))
+    [print(" -", e) for e in missing]
+    print("Not expected files:", len(output_only))
+    [print(" -", e) for e in output_only]
 
-    print("Files not in expected output:")
-    [print(e) for e in output.difference(expected_output)]
+    # TODO Checking hashsum from common files
 
-    
+
+def run(commands):
+    print("Running command \"{}\"".format(" ".join(commands)))
+    initial_t = time()
+    stdout = check_output(commands, stderr=PIPE)
+    delta_t = time() - initial_t
+    print("Finished in {:.2f} secs".format(delta_t))
+    return stdout
+
+
 def main():
     jpf_home = os.path.abspath("../jpf/jpf-core")
-    if not (os.path.exists(os.path.join(jpf_home, "build.xml")) \
-            and os.path.exists(os.path.join(jpf_home, "build.gradle"))):
+
+    ant_script = os.path.join(jpf_home, "build.xml")
+    gradle_script = os.path.join(jpf_home, "build.gradle")
+    if not (os.path.exists(ant_script) and os.path.exists(gradle_script)):
         raise Exception("Missing build script files")
         
     base_dir = os.path.abspath(os.curdir)
@@ -67,12 +70,12 @@ def main():
 
     build_output = os.path.join(jpf_home, "build")
 
-    out = check_output(["ant", "clean", "build"], stderr=PIPE)
+    out = run(["ant", "clean", "compile"])
     with open(os.path.join(base_dir, "ant-build.log"), "w") as build_log:
         build_log.write(out.decode())
     ant_output = analyze_files(build_output)
 
-    out = check_output(["./gradlew", "clean", "jar", "--info"], stderr=PIPE)
+    out = run(["./gradlew", "clean", "compile", "--info"])
     with open(os.path.join(base_dir, "gradle-build.log"), "w") as build_log:
         build_log.write(out.decode())
     gradle_output = analyze_files(build_output)
