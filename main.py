@@ -1,6 +1,6 @@
 import os
 import hashlib
-from subprocess import call
+from subprocess import check_output, PIPE
 
 
 class CompiledData:
@@ -62,18 +62,25 @@ def main():
             and os.path.exists(os.path.join(jpf_home, "build.gradle"))):
         raise Exception("Missing build script files")
         
+    base_dir = os.path.abspath(os.curdir)
     os.chdir(jpf_home)
 
     task_under_test = "compile"
     build_output = os.path.join(jpf_home, "build")
 
-    call(["ant", "clean", task_under_test])
-    ant_output = analyze_files(build_output)
+    out = check_output(["ant", "clean", "build"], stderr=PIPE)
+    with open(os.path.join(base_dir, "ant-build.log"), "w") as build_log:
+        build_log.write(out.decode())
 
     call(["./gradlew", "clean", task_under_test])
     gradle_output = analyze_files(build_output)
 
-    compare_output(ant_output, gradle_output)
+    out = check_output(["./gradlew", "clean", "jar"], stderr=PIPE)
+    with open(os.path.join(base_dir, "gradle-build.log"), "w") as build_log:
+        build_log.write(out.decode())
+    analyze_files(build_output, hashes, "gradle")
+
+    compare_output(hashes, "ant", "gradle")
 
 
 if __name__ == "__main__":
