@@ -75,7 +75,7 @@ def main():
         build_log.write(out.decode())
     ant_output = analyze_files(build_output)
 
-    out = run(["./gradlew", "clean", "jar", "--info"])
+    out = run(["./gradlew", "clean", "buildJars", "--info"])
     with open(os.path.join(base_dir, "gradle-build.log"), "w") as build_log:
         build_log.write(out.decode())
     gradle_output = analyze_files(build_output)
