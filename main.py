@@ -41,9 +41,9 @@ def compare_output(expected_output, output):
     print("Total files:", len(expected_files))
     print("Common files:", len(common))
     print("Missing files:", len(missing))
-    [print(" -", e) for e in missing]
+    [print(" -", e) for e in sorted(list(missing))]
     print("Not expected files:", len(output_only))
-    [print(" -", e) for e in output_only]
+    [print(" -", e) for e in sorted(list(output_only))]
 
     # TODO Checking hashsum from common files
 
