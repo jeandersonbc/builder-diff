@@ -65,22 +65,19 @@ def main():
     base_dir = os.path.abspath(os.curdir)
     os.chdir(jpf_home)
 
-    task_under_test = "compile"
     build_output = os.path.join(jpf_home, "build")
 
     out = check_output(["ant", "clean", "build"], stderr=PIPE)
     with open(os.path.join(base_dir, "ant-build.log"), "w") as build_log:
         build_log.write(out.decode())
-
-    call(["./gradlew", "clean", task_under_test])
-    gradle_output = analyze_files(build_output)
+    ant_output = analyze_files(build_output)
 
     out = check_output(["./gradlew", "clean", "jar"], stderr=PIPE)
     with open(os.path.join(base_dir, "gradle-build.log"), "w") as build_log:
         build_log.write(out.decode())
-    analyze_files(build_output, hashes, "gradle")
+    gradle_output = analyze_files(build_output)
 
-    compare_output(hashes, "ant", "gradle")
+    compare_output(ant_output, gradle_output)
 
 
 if __name__ == "__main__":
