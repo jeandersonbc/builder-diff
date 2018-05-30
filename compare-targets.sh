@@ -1,8 +1,10 @@
 #!/bin/bash
-JPF_HOME=/Users/jeandersonbc/projects/jpf/jpf-core
+#
+# A helper script that diffs recursively two build targets.
+
+PROJECT_HOME=/Users/jeandersonbc/projects/jpf/jpf-core
 OLD_TARGET=ant-build
 NEW_TARGET=gradle-build
-BASEDIR=`pwd`
 
 extract_jars() {
     for jar_path in $(find build -name "*.jar"); do
@@ -15,20 +17,22 @@ extract_jars() {
         tar xf $jar_name
         rm $jar_name
         popd;
-
     done;
 }
 
-pushd $JPF_HOME
+BASEDIR=`pwd`
+pushd $PROJECT_HOME
 rm -rf $OLD_TARGET $NEW_TARGET
 
 echo "Running ant build"
 time ant clean build &>$BASEDIR/ant-build.log
+echo "Extracting jars"
 extract_jars
 mv build $OLD_TARGET
 
 echo "Running gradle build"
 time ./gradlew clean buildJars --info &>$BASEDIR/gradle-build.log
+echo "Extracting jars"
 extract_jars
 mv build $NEW_TARGET
 
