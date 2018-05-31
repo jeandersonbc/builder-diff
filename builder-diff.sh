@@ -25,13 +25,13 @@ pushd $PROJECT_HOME
 rm -rf $OLD_TARGET $NEW_TARGET
 
 echo "Running ant build"
-time ant clean build &>$BASEDIR/ant-build.log
+time ant clean test &>$BASEDIR/ant-build.log
 echo "Extracting jars"
 extract_jars
 mv build $OLD_TARGET
 
 echo "Running gradle build"
-time ./gradlew clean buildJars --info &>$BASEDIR/gradle-build.log
+time ./gradlew clean test --info &>$BASEDIR/gradle-build.log
 echo "Extracting jars"
 extract_jars
 mv build $NEW_TARGET
