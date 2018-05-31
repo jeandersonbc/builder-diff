@@ -14,11 +14,12 @@ migrating to a different builder.
 
 ## Contributing
 
-Feel free to fork and adjust it according to your necessities.
+* Feel free to fork and adjust it according to your necessities.
+* If you have any questions or concerns, you are welcome to open a new issue.
+* If you find this script helpful, don't forget to leave a start :smile:
 
+## Acknowledgements
 
-If you have any questions or concerns, you are welcome to open a new issue.
-
-
-If you find this script helpful, don't forget to leave a start :smile:
-
+This helper script was initially implemented in Python, but thanks to the
+tip of my friend @gabriel-bezerra on Twitter, I saved some lines of code using
+plain Bash :smile:
