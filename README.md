@@ -8,7 +8,7 @@ This is a simple BASH script to assist the migration to different build tool.
 An important task in the build cycle is compiling and packing artifacts.
 To ensure that both builders produce the same output, this script performs a
 recursive diff and shows the differences between the targets.
-This scripts helps the developer to identify and fix issues that may occur when
+This script helps the developer to identify and fix issues that may occur when
 migrating to a different builder.
 
 
