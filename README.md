@@ -21,5 +21,5 @@ migrating to a different builder.
 ## Acknowledgements
 
 This helper script was initially implemented in Python, but thanks to the
-tip of my friend @gabriel-bezerra on Twitter, I saved some lines of code using
-plain Bash :smile:
+tip of my friend (@gabriel-bezzera)[github.com/gabriel-bezerra],
+I saved some lines of code using plain Bash :smile:
